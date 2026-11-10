@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Support invocation with sh by switching to Bash before parsing Bash syntax.
+[ -n "${BASH_VERSION:-}" ] || exec bash "$0" "$@"
 # Start the retriever, wait for readiness, and launch the web demo.
 set -euo pipefail
 

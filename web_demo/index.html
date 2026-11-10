@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demo of Search-R1 for AI/IIS Seminar Course</title>
+<style>
+:root{color-scheme:light;--ink:#192c2a;--muted:#62716b;--line:#dce3da;--green:#245d47}*{box-sizing:border-box}body{margin:0;background:#f5f6f0;color:var(--ink);font:16px/1.6 system-ui,sans-serif}main{max-width:1120px;margin:28px auto;padding:0 24px}h1{font-size:clamp(18px,3vw,28px);font-weight:650;line-height:1.4;margin:0 0 24px}p{color:var(--muted)}.card{scroll-margin-top:20px;background:white;border:1px solid var(--line);border-radius:16px;padding:26px;margin-bottom:24px}label,h2{font-size:14px;font-weight:650}h2{margin:0 0 16px}textarea{display:block;resize:vertical;min-height:165px;width:100%;border:1px solid #c9d4c9;border-radius:9px;padding:16px;margin:12px 0 16px;font:inherit;color:var(--ink);background:#fcfdf9}textarea:focus,button:focus-visible{outline:3px solid #9dc6ac;outline-offset:2px}button{cursor:pointer;font:inherit;border:0;border-radius:8px;padding:11px 18px;background:var(--green);color:white;font-weight:600}button:disabled{opacity:.5;cursor:wait}.example{background:transparent;color:var(--green);font-size:13px;padding:0;text-align:left;margin-top:16px;font-weight:400}.status{font-size:13px;color:var(--muted);margin-top:16px;min-height:22px}.status.busy:before{content:'';display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;margin-right:8px;animation:pulse 1s infinite alternate}@keyframes pulse{to{opacity:.25}}.answer{font-size:27px;font-weight:600;white-space:pre-wrap;overflow-wrap:anywhere}.placeholder{font-size:15px;color:var(--muted);font-weight:400}.note{font-size:12px;margin-bottom:0}#error{color:#a02f22;white-space:pre-wrap}footer{font-size:12px;color:var(--muted);margin:32px 0}@media(max-width:760px){main{margin-top:32px}.card{padding:20px}}
+
+.flow-head{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center}.flow-controls{display:flex;align-items:center;gap:12px;font-size:13px}.flow-controls button{padding:6px 12px;font-size:13px}.prompt-view{white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.8 ui-monospace,monospace;background:#f9faf6;border:1px solid var(--line);border-radius:10px;padding:20px;height:clamp(300px,50vh,580px);overflow:auto;margin-top:10px}.prompt-part{border-radius:3px;animation:arrive .45s ease-out}.part-prompt{color:#53635a}.part-think{color:#645091;background:#f0ecf8}.part-search{color:#1b617b;background:#e8f4fa}.part-information{color:#6f591a;background:#faf4df}.part-answer{color:#245d47;background:#e6f3e9}.legend{display:flex;flex-wrap:wrap;gap:16px;font-size:12px;margin:16px 0}.legend span{padding:2px 7px;border-radius:4px}#flow-note{font-size:13px;color:var(--muted);margin-top:16px}@keyframes arrive{from{background:#d9eadc;opacity:.35}to{opacity:1}}
+.simulator{--violet:#7851b8;--mint:#237b62;position:relative;isolation:isolate;overflow:hidden;background:#f3f7f2;color:#203c30;border:1px solid #d5e2d5;border-radius:18px;margin:20px 0;padding:14px 20px;box-shadow:0 16px 40px #14242018}.simulator:before{content:'';position:absolute;inset:0;z-index:-1;opacity:.35;background-image:radial-gradient(ellipse at 15% 40%,#bca6e538,transparent 50%),radial-gradient(ellipse at 90% 40%,#8ccab538,transparent 50%),radial-gradient(#769d8324 1px,transparent 1px);background-size:auto,auto,18px 18px}.sim-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,1fr) minmax(0,1fr);align-items:center;gap:16px;margin:12px 0}.machine{--accent:var(--violet);position:relative;text-align:center;border:1px solid #d5dfd3;border-radius:16px;background:#ffffffed;padding:10px 12px;transition:box-shadow .4s,border-color .4s,transform .4s}.machine.engine{--accent:var(--mint)}.machine strong{display:block;font-size:15px;font-weight:600;letter-spacing:-.3px}.machine small{display:inline-flex;align-items:center;gap:7px;color:#60776a;font-size:12px;margin-top:4px;min-height:20px}.machine small:before{content:'';width:6px;height:6px;border-radius:50%;background:#a1b4a5}.machine.active{border-color:var(--accent);box-shadow:0 0 28px color-mix(in srgb,var(--accent) 15%,transparent),inset 0 0 24px #ffffff40;transform:translateY(-3px)}.machine.active small{color:var(--accent)}.machine.active small:before{background:var(--accent);box-shadow:0 0 9px var(--accent);animation:pulse .8s infinite alternate}.machine-icon{position:relative;display:grid;place-items:center;width:36px;height:36px;margin:0 auto 8px;color:var(--accent);border:1px solid #dce4d9;background:#f4f6f0;border-radius:10px}.machine-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}.machine.active .machine-icon:before{content:'';position:absolute;inset:-4px;border:1px dashed var(--accent);border-radius:14px;animation:orbit 12s linear infinite}.machine-role{display:block;font-size:10px;letter-spacing:1.7px;text-transform:uppercase;color:#647b6b;margin-bottom:4px}.route{--route-color:var(--violet);position:relative;height:2px;background:linear-gradient(90deg,#7851b820,#7851b855);margin:30px 0;color:#65796b;text-align:center;font-size:11px;transition:color .3s}.route.return{--route-color:var(--mint);background:linear-gradient(90deg,#237b6255,#237b6220)}.route:after{content:'›';position:absolute;right:-2px;top:-18px;font-size:26px;color:var(--route-color)}.route.return:after{content:'‹';right:auto;left:-2px}.route-label{position:relative;top:-28px;letter-spacing:.2px}.packet{display:none;position:absolute;top:-3px;left:0;width:24px;height:6px;border-radius:8px;background:var(--route-color);box-shadow:0 0 14px var(--route-color)}.route.active{color:var(--route-color);background:linear-gradient(90deg,#ffffff00,var(--route-color),#ffffff00)}.route.active .packet{display:block;animation:send-packet 1.6s ease-in-out infinite}.route.return.active .packet{animation-direction:reverse}.sim-message{text-align:center;font-size:13px;margin:8px 0 0;color:#2b4837}.sim-query{display:block;text-align:center;color:#60786a;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:20px;margin-top:5px}.sim-mode{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:#60786a;margin:0;display:flex;align-items:center;gap:8px}.sim-mode:before{content:'';width:6px;height:6px;background:var(--mint);border-radius:50%}.sim-stages{display:flex;justify-content:center;gap:6px;border-top:1px solid #d8e2d5;padding-top:8px;margin-top:8px;flex-wrap:wrap}.sim-stages span{font-size:11px;color:#687e6e;padding:3px 8px;border-radius:6px;transition:color .3s,background .3s}.sim-stages span.current{color:#245d47;background:#dfeee1}.sim-stages b{font-weight:400;opacity:.45;margin-right:5px}@keyframes orbit{to{transform:rotate(360deg)}}@keyframes send-packet{from{left:0;opacity:.2}50%{opacity:1}to{left:calc(100% - 24px);opacity:.2}}@media(max-width:600px){.simulator{padding:12px}.sim-grid{gap:10px;grid-template-columns:minmax(0,1fr) 90px minmax(0,1fr)}.machine{padding:8px 6px}.machine strong{font-size:14px}.machine-role{font-size:8px;letter-spacing:1px}.machine small{font-size:10px}.machine-icon{width:30px;height:30px}.machine-icon svg{width:22px;height:22px}.route-label{font-size:9px}.sim-stages{gap:2px}.sim-stages span{padding:4px 6px}}
+@media(prefers-reduced-motion:reduce){*,*:before{animation:none!important;transition:none!important}}
+.examples-note{font-size:13px;margin:0 0 20px}.examples-grid{display:grid;grid-template-columns:1fr;gap:12px}.demo-example{border:1px solid var(--line);border-radius:12px;background:#fcfdf9;overflow:hidden}.demo-example summary{cursor:pointer;font-size:14px;font-weight:600;line-height:1.5;padding:14px;list-style-position:inside}.demo-example summary:focus-visible{outline:3px solid #9dc6ac;outline-offset:-3px}.demo-example[open] summary{border-bottom:1px solid var(--line)}.example-content{padding:14px}.demo-example summary span{font:12px ui-monospace,monospace;color:var(--green);margin-right:6px}.demo-example p{font-size:13px;margin:0 0 12px}.demo-example .example-question{color:var(--ink)}.demo-example .expected{background:#edf3e9;padding:10px;border-radius:7px;color:#355240}.demo-example a{color:var(--green)}.use-example{align-self:flex-start;margin-top:auto;font-size:12px;padding:7px 12px}.demo-example:last-child{grid-column:1/-1}@media(max-width:700px){.examples-grid{grid-template-columns:1fr}}
+.question-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:24px;align-items:stretch}.question-layout .card{min-width:0}.question-layout #form{display:flex;flex-direction:column;position:static}.question-layout #question{flex:1}.question-layout #submit{align-self:flex-start}.question-layout .demo-example{border:1px solid var(--line);border-radius:12px;background:#fcfdf9;overflow:hidden}.question-layout .demo-example:last-child{grid-column:auto}@media(max-width:760px){.question-layout{grid-template-columns:1fr;gap:0}.question-layout #form{position:static}}
+</style>
+</head>
+<body>
+<main>
+<h1>Demo of Search-R1 for AI/IIS Seminar Course</h1>
+<div class="question-layout">
+<section class="card" aria-labelledby="examples-heading"><h2 id="examples-heading">Seminar examples</h2><p class="examples-note">Expand a weakness and choose its example to fill your question. Reference answers are for comparison and are not sent to the model.</p><div class="examples-grid"><details class="demo-example"><summary><span>01</span> Limitations of Simple Outcome-Based Rewards</summary><div class="example-content"><p class="example-question">How is a homemade pizza made from scratch?</p><p class="expected"><strong>Expected answer:</strong> Mix flour, water, yeast, salt, and olive oil into a dough. Knead and let rise, then shape, add tomato sauce, mozzarella, and toppings. Bake in a preheated oven at 240°C for 10–15 minutes until golden.</p><button type="button" class="use-example" data-question="How is a homemade pizza made from scratch?">Use this question →</button></div></details><details class="demo-example"><summary><span>02</span> Generalization to Mathematical and Complex Tasks</summary><div class="example-content"><p class="example-question">A jacket originally costs €80. Its price increases by 25%, then decreases by 20%. You buy three jackets and receive a 15% discount on their combined price. An 8% sales tax applies to the discounted jacket total, and a flat €6 shipping fee is added after tax. What is the final amount you pay?</p><p class="expected"><strong>Expected answer:</strong> €226.32.</p><button type="button" class="use-example" data-question="A jacket originally costs €80. Its price increases by 25%, then decreases by 20%. You buy three jackets and receive a 15% discount on their combined price. An 8% sales tax applies to the discounted jacket total, and a flat €6 shipping fee is added after tax. What is the final amount you pay?">Use this question →</button></div></details><details class="demo-example"><summary><span>03</span> Unnecessary Search Calls</summary><div class="example-content"><p class="example-question">What is the capital of France?</p><p class="expected"><strong>Expected answer:</strong> Paris.</p><button type="button" class="use-example" data-question="What is the capital of France?">Use this question →</button></div></details><details class="demo-example"><summary><span>04</span> Limitations of the 2018 Wikipedia Dump</summary><div class="example-content"><p class="example-question">Who won the 2026 FIFA World Cup?</p><p class="expected"><strong>Expected answer:</strong> Spain.</p><button type="button" class="use-example" data-question="Who won the 2026 FIFA World Cup?">Use this question →</button></div></details><details class="demo-example"><summary><span>05</span> Robustness to Irrelevant or Misleading Information</summary><div class="example-content"><p class="example-question">Who won the season of The Rap Game in which a contestant named Lady Leshurr as one of her influences?</p><p class="expected"><strong>Correct answer:</strong> Mani.</p><button type="button" class="use-example" data-question="Who won the season of The Rap Game in which a contestant named Lady Leshurr as one of her influences?">Use this question →</button></div></details></div></section>
+<form id="form" class="card"><label for="question">Your question</label><textarea id="question" maxlength="4000" required placeholder="What would you like to find out?"></textarea><button id="submit" type="submit">Ask Search-R1 ↗</button><div id="status" class="status" role="status" aria-live="polite">Ready. The model is loaded. Ask a question.</div><div id="error" role="alert"></div></form>
+</div>
+<section id="execution" class="card" aria-label="Execution visualization">
+<div class="flow-head"><h2 style="margin:0">Building the full prompt</h2><div class="flow-controls"><button id="replay" type="button" disabled>Replay last run ↻</button></div></div>
+<div id="simulator" class="simulator" aria-label="LLM and Search Engine simulator">
+<p id="sim-mode" class="sim-mode">Execution simulator · waiting for a question</p>
+<div class="sim-grid"><div id="llm-node" class="machine"><span class="machine-role">Generation</span><span class="machine-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><rect x="10" y="10" width="20" height="20" rx="5"/><path d="M15 2v8m10-8v8M15 30v8m10-8v8M2 15h8m-8 10h8m20-10h8m-8 10h8"/><path d="m20 14 2 4 4 2-4 2-2 4-2-4-4-2 4-2Z"/></svg></span><strong>Search-R1 LLM</strong><small id="llm-state">Ready</small></div>
+<div><div id="query-route" class="route"><span class="route-label">Search query</span><span class="packet" aria-hidden="true"></span></div><div id="return-route" class="route return"><span class="route-label">Retrieved passages</span><span class="packet" aria-hidden="true"></span></div></div>
+<div id="retriever-node" class="machine engine"><span class="machine-role">Retrieval</span><span class="machine-icon" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M8 8h17M8 15h12M8 22h6"/><circle cx="24" cy="24" r="8"/><path d="m30 30 7 7M5 30H3V3h28v9"/></svg></span><strong>Search Engine</strong><small id="retriever-state">Waiting</small></div></div>
+<p id="sim-message" class="sim-message" role="status">One question. A loop of generation and discovery.</p><span id="sim-query" class="sim-query"></span><div class="sim-stages" aria-label="Execution stages"><span id="stage-prompt"><b>01</b> Prompt</span><span id="stage-generate"><b>02</b> Generate</span><span id="stage-search"><b>03</b> Search</span><span id="stage-return"><b>04</b> Information</span><span id="stage-answer"><b>05</b> Answer</span></div>
+</div>
+<div class="legend"><span class="part-prompt">Initial prompt</span><span class="part-think">&lt;think&gt;</span><span class="part-search">&lt;search&gt;</span><span class="part-information">&lt;information&gt;</span><span class="part-answer">&lt;answer&gt;</span></div>
+<div id="flow-note" role="status">The prompt will grow here, step by step, as model output and retrieved information are appended.</div><div id="prompt-view" class="prompt-view" tabindex="0" aria-label="Accumulating prompt">Submit a question to begin.</div>
+</section>
+
+<div id="answer-section" class="card"><h2>Model answer</h2><div id="answer" class="answer placeholder" aria-live="polite">Your answer will appear here.</div><p class="note">Model answers can be incorrect. Check the retrieved passages before relying on a result.</p></div>
+
+<footer>Search-R1 research demo · Results come from your local retriever.</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const exampleButtons = document.querySelectorAll('.use-example');
+exampleButtons.forEach(button => {
+  button.onclick = () => {
+    $('question').value = button.dataset.question;
+    scrollToSection('form');
+    $('question').focus({preventScroll:true});
+  };
+});
+let searches, failed, recording = [], replaying = false, round = 0;
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+function scrollToSection(id) {
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $(id).scrollIntoView({behavior: reducedMotion ? 'instant' : 'smooth', block:'start'});
+}
+function simulate(phase, message, query) {
+  const current = {prompt:'prompt',generate:'generate',output:'generate',send:'search',retrieve:'search',return:'return',answer:'answer',done:'answer'}[phase];
+  for(const stage of ['prompt','generate','search','return','answer']) {
+    $('stage-' + stage).classList.toggle('current', stage === current);
+  }
+  $('llm-node').classList.toggle('active', ['prompt','generate','output','return','answer'].includes(phase));
+  $('retriever-node').classList.toggle('active', ['send','retrieve','return'].includes(phase));
+  $('query-route').classList.toggle('active', phase === 'send');
+  $('return-route').classList.toggle('active', phase === 'return');
+  const labels = {
+    idle:['Ready','Waiting'], prompt:['Receiving prompt','Waiting'],
+    generate:['Generating…','Waiting'], output:['Output generated','Waiting'],
+    send:['Sending query','Receiving query'], retrieve:['Waiting for passages','Searching corpus…'],
+    return:['Receiving information','Returning passages'], answer:['Answer ready','Finished'],
+    error:['Stopped','Stopped'], done:['Finished','Finished']
+  };
+  const states = labels[phase];
+  $('llm-state').textContent = states[0]; $('retriever-state').textContent = states[1];
+  $('sim-message').textContent = message;
+  $('sim-mode').textContent = replaying ? 'Replay · recorded execution' : 'Live execution · visualized by generation round';
+  if(query !== undefined) { $('sim-query').textContent = query; $('sim-query').title = query; }
+}
+function appendPrompt(stage, text) {
+  if(!text) return;
+  const part = document.createElement('span');
+  part.className = 'prompt-part part-' + stage; part.textContent = text;
+  $('prompt-view').append(part);
+  $('prompt-view').scrollTop = $('prompt-view').scrollHeight;
+}
+async function appendOutput(text) {
+  // Keep every character, including whitespace, while revealing tagged sections in order.
+  const sections = /<(think|search|answer)>[\s\S]*?<\/\1>/g;
+  let cursor = 0;
+  for(const match of text.matchAll(sections)) {
+    appendPrompt('prompt', text.slice(cursor, match.index));
+    appendPrompt(match[1], match[0]);
+    $('flow-note').textContent = (replaying ? 'Replay' : 'Live run') + ' · appended <' + match[1] + '> output';
+    cursor = match.index + match[0].length;
+    await beat();
+  }
+  appendPrompt('prompt', text.slice(cursor));
+}
+async function beat() { await wait(1600); }
+function reset() {
+  simulate('idle', 'Waiting for the prompt…', '');
+  $('error').textContent = '';
+  $('answer').textContent = 'Working on your question…'; $('answer').classList.add('placeholder');
+  $('prompt-view').replaceChildren();
+  $('flow-note').textContent = 'Waiting for the initial prompt…';
+  searches = 0; round = 0; failed = false;
+}
+function busy(value) {
+  $('submit').disabled = value; exampleButtons.forEach(button => { button.disabled = value; });
+  $('replay').disabled = value || !recording.length;
+  $('status').classList.toggle('busy', value);
+}
+async function event(data) {
+  if(data.type === 'prompt') {
+    simulate('prompt', 'The question and instructions enter the LLM.');
+    appendPrompt('prompt', data.text);
+    $('flow-note').textContent = replaying ? 'Replay · recorded events, no new inference' : 'Live run · stages appear as results arrive';
+    await beat();
+  }
+  if(data.type === 'status') {
+    $('status').textContent = data.message;
+    if(data.message.startsWith('Generating')) {
+      round++;
+      simulate('generate', 'The LLM is generating · round ' + round, '');
+      $('flow-note').textContent = (replaying ? 'Replay' : 'Live run') + ' · generating round ' + round;
+    }
+  }
+  if(data.type === 'output') {
+    simulate('output', 'The LLM generated output · round ' + round);
+    appendPrompt('prompt', data.prefix || '');
+    await appendOutput(data.text);
+  }
+  if(data.type === 'search') {
+    simulate('send', 'The LLM sends its search query to the retriever.', data.query);
+    await beat();
+    simulate('retrieve', 'The retriever searches the corpus for relevant passages.');
+    searches++;
+    $('flow-note').textContent = 'Search ' + searches + ' · sending the generated query to the retriever…';
+    $('status').textContent = 'Retrieving passages…';
+    await beat();
+  }
+  if(data.type === 'results') {
+    simulate('return', 'Retrieved passages return to the LLM and extend its prompt.');
+    appendPrompt('information', '<information>' + data.text + '</information>\n\n');
+    $('flow-note').textContent = 'Retrieved information appended. The expanded prompt goes back to the model.';
+    await beat();
+  }
+  if(data.type === 'answer') {
+    simulate('answer', 'The LLM has generated its final answer.', '');
+    $('answer').textContent = data.text; $('answer').classList.remove('placeholder');
+    scrollToSection('answer-section');
+    await beat();
+  }
+  if(data.type === 'error') { simulate('error', 'Execution stopped with an error.'); failed = true; $('error').textContent = data.message; }
+  if(data.type === 'done') {
+    simulate(failed ? 'error' : 'done', failed ? 'Execution stopped.' : 'Complete · the full prompt is shown below.');
+    $('status').textContent = failed ? 'Stopped. See the error above.' : 'Complete.';
+    $('flow-note').textContent = failed ? 'Execution stopped with an error.' : (replaying ? 'Replay complete. The full prompt and generated continuation are shown above.' : 'Complete. The full prompt and generated continuation are shown above.');
+  }
+}
+$('replay').onclick = async () => {
+  replaying = true; reset(); busy(true);
+  scrollToSection('execution');
+  try { for(const data of recording) await event(data); }
+  finally { replaying = false; busy(false); }
+};
+$('form').onsubmit = async e => {
+  e.preventDefault(); const question = $('question').value.trim(); if(!question) return;
+  recording = []; replaying = false; reset(); busy(true);
+  scrollToSection('execution');
+  $('status').textContent = 'Connecting…';
+  try {
+    const response = await fetch('/api/ask', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({question})});
+    if(!response.ok) throw new Error(response.status === 409 ? 'Another question is running. Please try again shortly.' : 'Request failed (HTTP ' + response.status + ').');
+    const reader = response.body.getReader(), decoder = new TextDecoder(); let buffer = '', doneEvent = false;
+    while(true) {
+      const {value, done} = await reader.read(); buffer += decoder.decode(value, {stream:!done});
+      let end; while((end = buffer.indexOf('\n')) >= 0) {const line = buffer.slice(0,end); buffer = buffer.slice(end+1); if(line){const data = JSON.parse(line); recording.push(data); await event(data); if(data.type === 'done') doneEvent = true;}}
+      if(done) break;
+    }
+    if(!doneEvent) throw new Error('Connection closed before completion. Check the web server terminal.');
+  } catch(error) { simulate('error', 'Connection or request failed.'); failed = true; $('error').textContent = error.message; $('status').textContent = 'Request failed.'; }
+  finally { if(failed) {$('answer').textContent = 'No final answer returned.'; $('answer').classList.add('placeholder');} busy(false); }
+};
+</script>
+</body></html>

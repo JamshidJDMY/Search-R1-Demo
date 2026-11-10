@@ -1,0 +1,9 @@
+transformers<4.48
+huggingface-hub>=0.24.0,<1.0
+datasets==3.6.0
+tqdm
+fastapi
+pydantic
+uvicorn
+accelerate
+requests

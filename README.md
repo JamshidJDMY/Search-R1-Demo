@@ -11,9 +11,18 @@ The demo uses `PeterJinGo/SearchR1-nq_hotpotqa_train-qwen2.5-7b-em-ppo` with an 
 - Internet access to download dependencies, model weights, and corpus files, plus sufficient disk space for these downloads.
 - `curl` and `nohup` available on your system.
 
-Run the following commands from the repository root. On a cluster, launch the demo on an allocated GPU node.
+On a cluster, launch the demo on an allocated GPU node.
 
-## 1. Create the environment
+## 1. Clone the repository
+
+```bash
+git clone https://github.com/JamshidJDMY/Search-R1-Demo.git
+cd Search-R1-Demo
+```
+
+Run the remaining commands from this directory.
+
+## 2. Create the environment
 
 ```bash
 conda create -n searchr1 python=3.10
@@ -24,7 +33,7 @@ conda install -c pytorch -c nvidia faiss-gpu=1.8.0
 pip install -r requirements.txt
 ```
 
-## 2. Download and prepare the corpus
+## 3. Download and prepare the corpus
 
 ```bash
 save_path=./corpus
@@ -47,7 +56,7 @@ corpus/
 └── wiki-18.jsonl
 ```
 
-## 3. Start the web demo
+## 4. Start the web demo
 
 With the `searchr1` environment active, run:
 
